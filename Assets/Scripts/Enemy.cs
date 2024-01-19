@@ -26,6 +26,7 @@ public class Enemy : MonoBehaviour
     }
 
     public void Die(){
-        Debug.Log("je kanker moeder!");
+        Debug.Log("enemydeath");
+        Destroy(gameObject);
     }    
 }

@@ -6,7 +6,10 @@ public class Player : MonoBehaviour{
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private int health = 1;
+    [SerializeField] private int health = 3;
+        
+    private float resetinvistimer = 3f;
+    private float invisTimer;
 
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Rigidbody2D rb;
@@ -32,14 +35,20 @@ public class Player : MonoBehaviour{
         }else{
             speed = 5f;
         }
+        invisTimer -= Time.deltaTime;
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.CompareTag("EnemyTop")) {
             other.transform.parent.GetComponent<Enemy>().Die();
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
         if(other.CompareTag("EnemySide")){
             PlayerHit();
+        }
+        if(other.CompareTag("Coin")){
+            CoinManager.manager.AddCoin();
+            Destroy(other.gameObject);
         }
     }
 
@@ -52,11 +61,15 @@ public class Player : MonoBehaviour{
     }
 
     private void PlayerHit(){
-        if(health < 1){
-            Debug.Log("player is dead!");
-        }else
-            health --;
-            Debug.Log(health);
+        if(invisTimer < 0){
+            invisTimer = resetinvistimer;
+            if(health < 1){
+                Debug.Log("player is dead!");
+            }else
+                health --;
+                Debug.Log(health);
+        }
+        
     }
 
 }
