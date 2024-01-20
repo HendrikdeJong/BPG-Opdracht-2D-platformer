@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Heart
+  m_EditorClassIdentifier: 
+  m_AnimatedSprites:
+  - {fileID: 1658855375001513126, guid: 862b40d28afa3c94fbc03f6652069a5e, type: 3}
+  - {fileID: -209950847787651628, guid: 862b40d28afa3c94fbc03f6652069a5e, type: 3}
+  - {fileID: -6847684533737713649, guid: 862b40d28afa3c94fbc03f6652069a5e, type: 3}
+  - {fileID: 1234590316693746033, guid: 862b40d28afa3c94fbc03f6652069a5e, type: 3}
+  - {fileID: -8492051968732266932, guid: 862b40d28afa3c94fbc03f6652069a5e, type: 3}
+  m_MinSpeed: 6
+  m_MaxSpeed: 6
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 1
+  m_TileAnimationFlags: 0

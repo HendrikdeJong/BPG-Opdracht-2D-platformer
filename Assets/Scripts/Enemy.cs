@@ -8,6 +8,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private bool movingRight = true;
     [SerializeField] private LayerMask groundLayer;
+    private SpriteRenderer spriteRenderer;
+
+    private void Awake() {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
 
     void Update(){
         Vector2 moveDirection = movingRight ? Vector2.right : Vector2.left;
@@ -23,6 +28,7 @@ public class Enemy : MonoBehaviour
     }
     void flip(){
         movingRight = !movingRight;
+        spriteRenderer.flipX = movingRight;
     }
 
     public void Die(){

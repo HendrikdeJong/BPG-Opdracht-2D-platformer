@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour{
 
@@ -13,15 +15,18 @@ public class Player : MonoBehaviour{
     private float resetinvistimer = 3f;
     private float invisTimer;
 
+    private bool HasKey = false;
+
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Tilemap tilemap;
     
     private Vector2 move;
     [SerializeField] private bool isGrounded;
 
-    void Start(){
+    void Awake(){
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -30,7 +35,7 @@ public class Player : MonoBehaviour{
     void Update(){
         float sideMovement = Input.GetAxis("Horizontal");
         move = new Vector2(sideMovement, rb.velocity.y);
-        animator.SetFloat("MoveSpeed", math.abs(sideMovement));
+        animator.SetFloat("MoveSpeed", Mathf.Abs(sideMovement));
 
         // Check for jump input
         if (Input.GetButtonDown("Jump") && isGrounded) {
@@ -39,7 +44,7 @@ public class Player : MonoBehaviour{
 
         //animator
         animator.SetBool("IsGrounded", isGrounded);
-        animator.SetFloat("Velocity", math.abs(rb.velocity.x / 5));
+        animator.SetFloat("Velocity", Mathf.Abs(rb.velocity.x / 5));
 
         if(move.x < 0){
             spriteRenderer.flipX = true;
@@ -57,38 +62,61 @@ public class Player : MonoBehaviour{
         invisTimer -= Time.deltaTime;
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
+    private void OnTriggerStay2D(Collider2D other){
         if(other.CompareTag("EnemyTop")) {
             other.transform.parent.GetComponent<Enemy>().Die();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
-        if(other.CompareTag("EnemySide")){
+        if(other.name == "SideCollider"){
             PlayerHit();
         }
-        if(other.CompareTag("Coin")){
-            GameManager.manager.AddCoin();
-            Destroy(other.gameObject);
+        if(other.name == "Door" && HasKey == true){
+            Debug.Log("key used on door");
+        }
+        if (other.CompareTag("ItemCollider")){
+            Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
+
+            TileBase tile = tilemap.GetTile(cellPosition);
+            if (tile != null && tile.name == "Coin"){
+                GameManager.manager.AddCoin();
+                tilemap.SetTile(cellPosition, null); // dit haalt de tile weg
+            }
+            if (tile != null && tile.name == "Heart"){
+                if(health < 3){
+                    health++;
+                    GameManager.manager.UpdateHealthUI(health);
+                    tilemap.SetTile(cellPosition, null);
+                }
+            }
+            if (tile != null && tile.name == "JumpPad"){
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
+            }
+            if (tile != null && tile.name == "Key"){
+                HasKey = true;
+                tilemap.SetTile(cellPosition, null);
+            }
+            // if (tile != null && tile.name == "Door" && HasKey == true){
+            //     Debug.Log("key used on door");
+            // }
         }
     }
 
     private void FixedUpdate() {
-        // Ground check
         isGrounded = Physics2D.OverlapCircle(transform.position, 1f, groundLayer);
 
-        // Apply movement without Time.deltaTime
         rb.velocity = new Vector2(move.x * speed, rb.velocity.y);
     }
 
     private void PlayerHit(){
-        if(invisTimer < 0){
-            invisTimer = resetinvistimer;
-        }
-
-        if(health < 1){
+        if(health < 1 && invisTimer < 0){
                 Debug.Log("player is dead");
-            }else
+                // reset scene
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }else if(invisTimer < 0){
                 health --;
                 GameManager.manager.UpdateHealthUI(health);
+                invisTimer = resetinvistimer;
+            }
     }
 
 }
