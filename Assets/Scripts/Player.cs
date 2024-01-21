@@ -41,6 +41,10 @@ public class Player : MonoBehaviour{
         if (Input.GetButtonDown("Jump") && isGrounded) {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
+        if (Input.GetButtonDown("Cancel")) {
+            GameManager.manager.TogglePause();
+        }
+
 
         //animator
         animator.SetBool("IsGrounded", isGrounded);

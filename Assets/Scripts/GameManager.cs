@@ -8,6 +8,9 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour{
 
     public int totalcoins;
+    public bool paused;
+    public GameObject pausemenuUi;
+
 
     public TextMeshProUGUI GameTimerText;
     public float GameTimer = 120;
@@ -44,6 +47,21 @@ public class GameManager : MonoBehaviour{
 
     public void AddCoin(){
         totalcoins++;
+    }
+
+    public void TogglePause(){
+        if(!paused){
+            Time.timeScale = 0;
+            pausemenuUi.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            paused = !paused;
+        } else {
+            Time.timeScale = 1;
+            pausemenuUi.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            paused = !paused;
+        }
+
     }
 
     public void UpdateHealthUI(int currentHealth){
