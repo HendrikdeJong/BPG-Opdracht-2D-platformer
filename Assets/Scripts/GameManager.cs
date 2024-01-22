@@ -61,7 +61,6 @@ public class GameManager : MonoBehaviour{
             Cursor.lockState = CursorLockMode.Locked;
             paused = !paused;
         }
-
     }
 
     public void UpdateHealthUI(int currentHealth){

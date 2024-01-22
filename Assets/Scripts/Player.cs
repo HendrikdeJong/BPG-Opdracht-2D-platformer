@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour{
@@ -45,7 +43,6 @@ public class Player : MonoBehaviour{
             GameManager.manager.TogglePause();
         }
 
-
         //animator
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetFloat("Velocity", Mathf.Abs(rb.velocity.x / 5));
@@ -67,43 +64,57 @@ public class Player : MonoBehaviour{
     }
 
     private void OnTriggerStay2D(Collider2D other){
-        if(other.CompareTag("EnemyTop")) {
+    switch (other.name){
+        case "TopCollider":
             other.transform.parent.GetComponent<Enemy>().Die();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        }
-        if(other.name == "SideCollider"){
-            PlayerHit();
-        }
-        if(other.name == "Door" && HasKey == true){
-            Debug.Log("key used on door");
-        }
-        if (other.CompareTag("ItemCollider")){
-            Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
+            break;
 
-            TileBase tile = tilemap.GetTile(cellPosition);
-            if (tile != null && tile.name == "Coin"){
-                GameManager.manager.AddCoin();
-                tilemap.SetTile(cellPosition, null); // dit haalt de tile weg
+        case "SideCollider":
+            PlayerHit();
+            break;
+
+        case "Door":
+            if (HasKey){
+                Debug.Log("Key used on door");
             }
-            if (tile != null && tile.name == "Heart"){
-                if(health < 3){
-                    health++;
-                    GameManager.manager.UpdateHealthUI(health);
-                    tilemap.SetTile(cellPosition, null);
+            break;
+
+        case "Items":
+            Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
+            TileBase tile = tilemap.GetTile(cellPosition);
+
+            if (tile != null){
+                switch (tile.name)
+                {
+                    case "Coin":
+                        GameManager.manager.AddCoin();
+                        tilemap.SetTile(cellPosition, null);
+                        break;
+
+                    case "Heart":
+                        if (health < 3)
+                        {
+                            health++;
+                            GameManager.manager.UpdateHealthUI(health);
+                            tilemap.SetTile(cellPosition, null);
+                        }
+                        break;
+
+                    case "JumpPad":
+                        rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
+                        break;
+
+                    case "Key":
+                        HasKey = true;
+                        tilemap.SetTile(cellPosition, null);
+                        break;
                 }
             }
-            if (tile != null && tile.name == "JumpPad"){
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
-            }
-            if (tile != null && tile.name == "Key"){
-                HasKey = true;
-                tilemap.SetTile(cellPosition, null);
-            }
-            // if (tile != null && tile.name == "Door" && HasKey == true){
-            //     Debug.Log("key used on door");
-            // }
+            break;
         }
     }
+
 
     private void FixedUpdate() {
         isGrounded = Physics2D.OverlapCircle(transform.position, 1f, groundLayer);
@@ -115,7 +126,7 @@ public class Player : MonoBehaviour{
         if(health < 1 && invisTimer < 0){
                 Debug.Log("player is dead");
                 // reset scene
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                // SceneLoadingManager.reloadmap();
             }else if(invisTimer < 0){
                 health --;
                 GameManager.manager.UpdateHealthUI(health);
