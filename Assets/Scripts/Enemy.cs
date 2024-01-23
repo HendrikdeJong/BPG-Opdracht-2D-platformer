@@ -8,11 +8,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private bool movingRight = true;
     [SerializeField] private LayerMask groundLayer;
-    private SpriteRenderer spriteRenderer;
-
-    private void Awake() {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
+    private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
+    private Rigidbody2D rb => GetComponent<Rigidbody2D>();
 
     void Update(){
         Vector2 moveDirection = movingRight ? Vector2.right : Vector2.left;
@@ -23,7 +20,8 @@ public class Enemy : MonoBehaviour
             flip();
         }
 
-        transform.Translate(moveDirection * speed * Time.deltaTime);
+        // transform.Translate(moveDirection * speed * Time.deltaTime);
+        rb.velocity = moveDirection * speed;
 
     }
     void flip(){

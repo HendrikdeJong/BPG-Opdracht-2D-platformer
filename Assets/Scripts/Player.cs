@@ -20,17 +20,21 @@ public class Player : MonoBehaviour{
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Tilemap tilemap;
+    private Vector2 startpos;
     
     private Vector2 move;
     [SerializeField] private bool isGrounded;
 
-    void Awake(){
+    void Awake() {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    void Update(){
+    private void Start() {
+        startpos = transform.position;
+    }
+    void Update() {
         float sideMovement = Input.GetAxis("Horizontal");
         move = new Vector2(sideMovement, rb.velocity.y);
         animator.SetFloat("MoveSpeed", Mathf.Abs(sideMovement));
@@ -47,14 +51,14 @@ public class Player : MonoBehaviour{
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetFloat("Velocity", Mathf.Abs(rb.velocity.x / 5));
 
-        if(move.x < 0){
+        if(move.x < 0) {
             spriteRenderer.flipX = true;
         }else
             spriteRenderer.flipX = false;
             
         
         //sprint
-        if (Input.GetButton("Fire3")){
+        if (Input.GetButton("Fire3")) {
             speed = 7f;
         }else
             speed = 5f;
@@ -63,55 +67,68 @@ public class Player : MonoBehaviour{
         invisTimer -= Time.deltaTime;
     }
 
-    private void OnTriggerStay2D(Collider2D other){
-    switch (other.name){
-        case "TopCollider":
-            other.transform.parent.GetComponent<Enemy>().Die();
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            break;
+    private void OnTriggerStay2D(Collider2D other) {
+        switch (other.name) {
+            case "TopCollider":
+                other.transform.parent.GetComponent<Enemy>().Die();
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                break;
 
-        case "SideCollider":
-            PlayerHit();
-            break;
+            case "SideCollider":
+                PlayerHit();
+                break;
 
-        case "Door":
-            if (HasKey){
-                Debug.Log("Key used on door");
-            }
-            break;
-
-        case "Items":
-            Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
-            TileBase tile = tilemap.GetTile(cellPosition);
-
-            if (tile != null){
-                switch (tile.name)
-                {
-                    case "Coin":
-                        GameManager.manager.AddCoin();
-                        tilemap.SetTile(cellPosition, null);
-                        break;
-
-                    case "Heart":
-                        if (health < 3)
-                        {
-                            health++;
-                            GameManager.manager.UpdateHealthUI(health);
-                            tilemap.SetTile(cellPosition, null);
-                        }
-                        break;
-
-                    case "JumpPad":
-                        rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
-                        break;
-
-                    case "Key":
-                        HasKey = true;
-                        tilemap.SetTile(cellPosition, null);
-                        break;
+            case "Door":
+                if (HasKey) {
+                    Debug.Log("Key used on door");
+                    SceneLoader.Loader.LoadNextScene(GameManager.manager.totalcoins);
                 }
-            }
-            break;
+                break;
+
+            case "Death":
+                // SceneLoader.Loader.ReloadScene();
+                transform.position = startpos;
+                PlayerHit();
+
+                break;
+
+            case "Items":
+                Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
+                TileBase tile = tilemap.GetTile(cellPosition);
+
+                if (tile != null) {
+                    switch (tile.name)
+                    {
+                        case "Coin":
+                            GameManager.manager.AddCoin();
+                            tilemap.SetTile(cellPosition, null);
+                            break;
+
+                        case "Heart":
+                            if (health < 3)
+                            {
+                                health++;
+                                GameManager.manager.UpdateHealthUI(health);
+                                tilemap.SetTile(cellPosition, null);
+                            }
+                            break;
+
+                        case "JumpPad":
+                            rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
+                            break;
+
+                        case "Key":
+                            HasKey = true;
+                            tilemap.SetTile(cellPosition, null);
+                            break;
+                        case "LifeStation":
+                            Debug.Log("life bitch");
+                            GameManager.manager.AddLife();
+                            tilemap.SetTile(cellPosition, null);
+                            break;
+                    }
+                }
+                break;
         }
     }
 
@@ -122,12 +139,13 @@ public class Player : MonoBehaviour{
         rb.velocity = new Vector2(move.x * speed, rb.velocity.y);
     }
 
-    private void PlayerHit(){
-        if(health < 1 && invisTimer < 0){
+    private void PlayerHit() {
+        if(health < 1 && invisTimer < 0) {
                 Debug.Log("player is dead");
-                // reset scene
-                // SceneLoadingManager.reloadmap();
-            }else if(invisTimer < 0){
+                GameManager.manager.RemoveLife();
+                SceneLoader.Loader.LoadScene(0, GameManager.manager.totallifes);
+                // SceneLoader.Loader.ReloadScene();
+            }else if(invisTimer < 0) {
                 health --;
                 GameManager.manager.UpdateHealthUI(health);
                 invisTimer = resetinvistimer;

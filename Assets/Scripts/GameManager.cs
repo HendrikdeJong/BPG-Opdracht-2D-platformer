@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour{
 
     public int totalcoins;
+    public int totallifes;
     public bool paused;
     public GameObject pausemenuUi;
 
@@ -22,16 +23,22 @@ public class GameManager : MonoBehaviour{
 
 
     public TextMeshProUGUI coinText;
+    public TextMeshProUGUI lifeText;
     
 
     public static GameManager manager;
 
     private void Awake() {
         manager = this;
+
+        totalcoins = PlayerPrefs.GetInt("coins");
+        totallifes = PlayerPrefs.GetInt("lifes");
     }
 
     private void Update() {
-        coinText.text = totalcoins.ToString(); 
+
+        coinText.text = totalcoins.ToString();
+        lifeText.text = totallifes.ToString(); 
 
         HandleGameTime();
     }
@@ -40,11 +47,19 @@ public class GameManager : MonoBehaviour{
         GameTimer -= Time.deltaTime;
         if(GameTimer < 0){
             Debug.Log("game over by time");
+            RemoveLife();
+            SceneLoader.Loader.LoadScene(0, totallifes);
         }
         GameTimerText.text = math.round(GameTimer).ToString();
         timerImage.fillAmount = GameTimer / 120;
     }
 
+    public void AddLife(){
+        totallifes++;
+    }
+    public void RemoveLife(){
+        totallifes--;
+    }
     public void AddCoin(){
         totalcoins++;
     }
