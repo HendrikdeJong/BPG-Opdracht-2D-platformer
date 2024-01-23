@@ -143,7 +143,8 @@ public class Player : MonoBehaviour{
         if(health < 1 && invisTimer < 0) {
                 Debug.Log("player is dead");
                 GameManager.manager.RemoveLife();
-                SceneLoader.Loader.LoadScene(0, GameManager.manager.totallifes);
+                PlayerPrefs.SetInt("lifes", GameManager.manager.totallifes);
+                SceneLoader.Loader.LoadScene(0);
                 // SceneLoader.Loader.ReloadScene();
             }else if(invisTimer < 0) {
                 health --;

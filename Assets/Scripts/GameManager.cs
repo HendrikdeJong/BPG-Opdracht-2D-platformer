@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour{
-
     public int totalcoins;
     public int totallifes;
     public bool paused;
@@ -48,7 +47,8 @@ public class GameManager : MonoBehaviour{
         if(GameTimer < 0){
             Debug.Log("game over by time");
             RemoveLife();
-            SceneLoader.Loader.LoadScene(0, totallifes);
+            PlayerPrefs.SetInt("lifes",totallifes);
+            SceneLoader.Loader.LoadScene(0);
         }
         GameTimerText.text = math.round(GameTimer).ToString();
         timerImage.fillAmount = GameTimer / 120;
