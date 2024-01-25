@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour{
 
         totalcoins = PlayerPrefs.GetInt("coins");
         totallifes = PlayerPrefs.GetInt("lifes");
+        coinText.text = totalcoins.ToString();
+        lifeText.text = totallifes.ToString(); 
     }
 
     private void Update() {
@@ -89,5 +91,5 @@ public class GameManager : MonoBehaviour{
                 heartImages[i].sprite = emptyHeartSprite;
             }
         }
-    }    
+    }
 }

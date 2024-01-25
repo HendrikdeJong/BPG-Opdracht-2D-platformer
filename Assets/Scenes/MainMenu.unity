@@ -1563,7 +1563,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1390550808}
         m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: quit
+        m_MethodName: Quit
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2674,7 +2674,7 @@ GameObject:
   - component: {fileID: 1390550809}
   - component: {fileID: 1390550808}
   m_Layer: 0
-  m_Name: LevelManager
+  m_Name: MainMenuHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
