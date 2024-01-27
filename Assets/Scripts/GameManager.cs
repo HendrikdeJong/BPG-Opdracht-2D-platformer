@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour{
     public int totalcoins;
-    public int totallifes;
+    public int totallives;
+    public int proggress;
     public bool paused;
     public GameObject pausemenuUi;
 
@@ -31,54 +32,37 @@ public class GameManager : MonoBehaviour{
         manager = this;
 
         totalcoins = PlayerPrefs.GetInt("coins");
-        totallifes = PlayerPrefs.GetInt("lifes");
+        totallives = PlayerPrefs.GetInt("lives");
+        proggress = PlayerPrefs.GetInt("proggress");
         coinText.text = totalcoins.ToString();
-        lifeText.text = totallifes.ToString(); 
+        lifeText.text = totallives.ToString(); 
     }
 
     private void Update() {
-
         coinText.text = totalcoins.ToString();
-        lifeText.text = totallifes.ToString(); 
+        lifeText.text = totallives.ToString(); 
 
         HandleGameTime();
+        pausemenuUi.SetActive(paused); 
+        if(!paused)
+            GameTimer -= Time.deltaTime;
     }
 
     private void HandleGameTime(){
-        GameTimer -= Time.deltaTime;
+        
         if(GameTimer < 0){
             Debug.Log("game over by time");
             RemoveLife();
-            PlayerPrefs.SetInt("lifes",totallifes);
+            PlayerPrefs.SetInt("lifes",totallives);
             SceneLoader.Loader.LoadScene(0);
         }
         GameTimerText.text = math.round(GameTimer).ToString();
         timerImage.fillAmount = GameTimer / 120;
     }
 
-    public void AddLife(){
-        totallifes++;
-    }
-    public void RemoveLife(){
-        totallifes--;
-    }
-    public void AddCoin(){
-        totalcoins++;
-    }
-
-    public void TogglePause(){
-        if(!paused){
-            Time.timeScale = 0;
-            pausemenuUi.SetActive(true);
-            Cursor.lockState = CursorLockMode.None;
-            paused = !paused;
-        } else {
-            Time.timeScale = 1;
-            pausemenuUi.SetActive(false);
-            Cursor.lockState = CursorLockMode.Locked;
-            paused = !paused;
-        }
-    }
+    public void AddLife(){totallives++;}
+    public void RemoveLife(){totallives--;}
+    public void AddCoin(){totalcoins++;}
 
     public void UpdateHealthUI(int currentHealth){
         for (int i = 0; i < heartImages.Length; i++)
@@ -91,5 +75,13 @@ public class GameManager : MonoBehaviour{
                 heartImages[i].sprite = emptyHeartSprite;
             }
         }
+    }
+
+    public void ToggleCursorState() {
+        paused = !paused;
+        Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
+        // Time.timeScale = paused ? Time.timeScale = 1 : Time.timeScale = 0;
+        // GameManager.manager.paused = paused ? true : false;
+        // Cursor.visible = !paused;
     }
 }

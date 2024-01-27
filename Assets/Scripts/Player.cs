@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -27,34 +28,65 @@ public class Player : MonoBehaviour{
         startpos = transform.position;
     }
     void Update() {
+    if (!GameManager.manager.paused) {
+        HandleMovement();
+        HandleJump();
+    }
+        TogglePauseState();
+        HandleActions();
+        // Always update animations and sprite direction
+        UpdateAnimationsAndSpriteDirection();
+    }
+
+    void FixedUpdate() {
+        if (!GameManager.manager.paused) {
+            ApplyMovement();
+        }
+    }
+
+    private void HandleMovement() {
         float sideMovement = Input.GetAxis("Horizontal");
         move = new Vector2(sideMovement, rb.velocity.y);
         animator.SetFloat("MoveSpeed", Mathf.Abs(sideMovement));
+        invisTimer -= Time.deltaTime;
+    }
 
+    private void HandleJump() {
         if (Input.GetButtonDown("Jump") && isGrounded) {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             source.PlayOneShot(sfx[5]);
         }
-        if (Input.GetButtonDown("Cancel")) {
-            GameManager.manager.TogglePause();
-        }
-
-        //animator
-        animator.SetBool("IsGrounded", isGrounded);
-        animator.SetFloat("Velocity", Mathf.Abs(rb.velocity.x / 5));
-
-        spriteRenderer.flipX = move.x < 0 ? true : false;
-        speed = Input.GetButton("Fire3") ? 7f : 5f;
-        
-        invisTimer -= Time.deltaTime;
     }
-    
-    private void FixedUpdate() {
-        isGrounded = Physics2D.OverlapCircle(transform.position, 1f, groundLayer);
 
+    private void HandleActions() {
+        if (Input.GetButtonDown("Cancel")) {
+            GameManager.manager.ToggleCursorState();
+        }
+    }
+
+    private void ApplyMovement() {
+        isGrounded = Physics2D.OverlapCircle(transform.position, 1f, groundLayer);
         rb.velocity = new Vector2(move.x * speed, rb.velocity.y);
     }
-    
+
+    private void UpdateAnimationsAndSpriteDirection() {
+        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetFloat("Velocity", Mathf.Abs(rb.velocity.x / 5));
+        spriteRenderer.flipX = move.x < 0;
+        speed = Input.GetButton("Fire3") ? 7f : 5f;
+    }
+
+    private void TogglePauseState() {
+        if (GameManager.manager.paused) {
+            // When paused, make the Rigidbody kinematic
+            rb.isKinematic = true;
+            rb.velocity = Vector2.zero; // Optionally, clear any existing velocity
+        } else {
+            // When unpaused, revert the Rigidbody to non-kinematic
+            rb.isKinematic = false;
+        }
+    }
+
     //collision & items
     private void OnTriggerStay2D(Collider2D other) {
         switch (other.name) {
@@ -77,7 +109,7 @@ public class Player : MonoBehaviour{
             case "Door":
                 if (HasKey) {
                     Debug.Log("Key used on door");
-                    SceneLoader.Loader.LoadNextScene(GameManager.manager.totalcoins);
+                    SceneLoader.Loader.LoadNextScene();
                 }
                 break;
             case "Items":
@@ -138,9 +170,9 @@ public class Player : MonoBehaviour{
     private IEnumerator PlayerDeath(){
         source.PlayOneShot(sfx[7]);
         GameManager.manager.RemoveLife();
-        PlayerPrefs.SetInt("lifes", GameManager.manager.totallifes);
+        PlayerPrefs.SetInt("lifes", GameManager.manager.totallives);
         yield return new WaitForSeconds(2);
-        
+        SceneLoader.Loader.LoadScene(0);
     }
 
 }
