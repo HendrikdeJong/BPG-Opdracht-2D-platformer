@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -11,21 +10,19 @@ public class Player : MonoBehaviour{
     SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
 
     public AudioClip[] sfx;
-    private float resetinvistimer = 1.5f;
-    private float invisTimer;
     private bool HasKey = false;
     private Vector2 startpos;
     private Vector2 move;
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private int health = 3;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private bool isGrounded;
 
     private void Start() {
         startpos = transform.position;
+        GameManager.manager.paused = false;
     }
     void Update() {
     if (!GameManager.manager.paused) {
@@ -48,7 +45,6 @@ public class Player : MonoBehaviour{
         float sideMovement = Input.GetAxis("Horizontal");
         move = new Vector2(sideMovement, rb.velocity.y);
         animator.SetFloat("MoveSpeed", Mathf.Abs(sideMovement));
-        invisTimer -= Time.deltaTime;
     }
 
     private void HandleJump() {
@@ -59,7 +55,7 @@ public class Player : MonoBehaviour{
     }
 
     private void HandleActions() {
-        if (Input.GetButtonDown("Cancel")) {
+        if (Input.GetButtonDown("Cancel") && !GameManager.manager.paused) {
             GameManager.manager.ToggleCursorState();
         }
     }
@@ -94,21 +90,23 @@ public class Player : MonoBehaviour{
                 other.transform.parent.GetComponent<Enemy>().Die();
                 source.PlayOneShot(sfx[4]);
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                GameManager.manager.levelScore += 25;
                 break;
 
             case "SideCollider":
-                PlayerHit();
+                GameManager.manager.PlayerHit();
+                // PlayerHit();
                 break;
             case "Death":
                 // SceneLoader.Loader.ReloadScene();
+                GameManager.manager.PlayerHit();
                 transform.position = startpos;
-                PlayerHit();
+                // PlayerHit();
 
                 break;
 
             case "Door":
                 if (HasKey) {
-                    Debug.Log("Key used on door");
                     SceneLoader.Loader.LoadNextScene();
                 }
                 break;
@@ -121,15 +119,15 @@ public class Player : MonoBehaviour{
                     {
                         case "Coin":
                             GameManager.manager.AddCoin();
+                            GameManager.manager.levelScore += 10;
                             source.PlayOneShot(sfx[0]);
                             tilemap.SetTile(cellPosition, null);
                             break;
 
                         case "Heart":
-                            if (health < 3) {
-                                health++;
+                            if (GameManager.manager.health < 3) {
+                                GameManager.manager.health++;
                                 source.PlayOneShot(sfx[1]);
-                                GameManager.manager.UpdateHealthUI(health);
                                 tilemap.SetTile(cellPosition, null);
                             }
                             break;
@@ -151,28 +149,7 @@ public class Player : MonoBehaviour{
                             break;
                     }
                 }
-                break;
+            break;
         }
     }
-
-    private void PlayerHit() {
-        if(health < 1 && invisTimer < 0) {
-                invisTimer = resetinvistimer;
-                StartCoroutine(PlayerDeath());
-            }else if(invisTimer < 0) {
-                source.PlayOneShot(sfx[3]);
-                health --;
-                GameManager.manager.UpdateHealthUI(health);
-                invisTimer = resetinvistimer;
-            }
-    }
-
-    private IEnumerator PlayerDeath(){
-        source.PlayOneShot(sfx[7]);
-        GameManager.manager.RemoveLife();
-        PlayerPrefs.SetInt("lifes", GameManager.manager.totallives);
-        yield return new WaitForSeconds(2);
-        SceneLoader.Loader.LoadScene(0);
-    }
-
 }

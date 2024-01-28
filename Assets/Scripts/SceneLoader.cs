@@ -25,16 +25,24 @@ public class SceneLoader : MonoBehaviour {
         PlayerPrefs.SetInt("lives", 3);
         PlayerPrefs.SetInt("coins", 0);
         PlayerPrefs.SetInt("proggres",0);
+        PlayerPrefs.SetInt("score", 0);
         SceneManager.LoadScene(0);
     }
-    // public void ReloadScene(){
-    //     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    // }
+    public void ReloadScene(){
+        if(PlayerPrefs.GetInt("lives") <= 0){
+            LoadScene(0);
+        }else{
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+    }
+    public void goToMainMenu(){
+        SceneManager.LoadScene(0);
+    }
     public void LoadNextScene() {
         PlayerPrefs.SetInt("coins", GameManager.manager.totalcoins);
-        PlayerPrefs.SetInt("lives", GameManager.manager.totallives);
+        PlayerPrefs.SetInt("score", GameManager.manager.totalscore);
         if(SceneManager.sceneCount >= SceneManager.GetActiveScene().buildIndex){
-            PlayerPrefs.SetInt("proggress", SceneManager.GetActiveScene().buildIndex - 1);
+            PlayerPrefs.SetInt("proggress", SceneManager.GetActiveScene().buildIndex + 1);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         } else SceneManager.LoadScene(0);
     }

@@ -15,13 +15,11 @@ public class BlockSpawnBlock : MonoBehaviour{
     }
 
     private void OnCollisionEnter2D(Collision2D other){
-            Debug.Log("block saw player");
             Vector3Int cellPosition = ItemTileMap.WorldToCell(transform.position);
             TileBase tile = ItemTileMap.GetTile(cellPosition);
 
             if (!hasSpawnedItem && tile == null){
                 hasSpawnedItem = true;
-                Debug.Log("should spawn block");
                 // Randomly choose between CoinTile and HeartTile
                 TileBase selectedTile = Random.Range(0, 2) == 0 ? CoinTile : HeartTile;
 

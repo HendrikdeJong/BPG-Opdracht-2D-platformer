@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +9,10 @@ public class MainMenuHandler : MonoBehaviour {
     private int proggress;
 
     public Button[] buttons;
+    public TextMeshProUGUI GameScoreText;
 
-    private void Awake() {
+    private void Start() {
+        GameScoreText.text = "highscore: " + PlayerPrefs.GetInt("highscore");
         Cursor.lockState = CursorLockMode.None;
         // lifes = PlayerPrefs.GetInt("lives");
         proggress = PlayerPrefs.GetInt("proggress");
