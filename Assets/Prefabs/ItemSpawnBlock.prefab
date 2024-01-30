@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2173253332020262416}
   - component: {fileID: 9091946053118119934}
   - component: {fileID: 8198912432078434442}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ItemSpawnBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}

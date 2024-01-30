@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour{
     public bool paused;
     public GameObject pausemenuUi;
     public GameObject deathScreen;
+    public AudioSource MusicSource;
     
 
     public int health = 3;
@@ -27,8 +28,9 @@ public class GameManager : MonoBehaviour{
 
     public TextMeshProUGUI GameTimerText;
     public TextMeshProUGUI GameoverText;
+    public TextMeshProUGUI Score;
     public float GameTimer = 120;
-    public Image timerImage;
+    
 
     public Image[] heartImages;
     public Sprite fullHeartSprite;
@@ -47,14 +49,21 @@ public class GameManager : MonoBehaviour{
         totalcoins = PlayerPrefs.GetInt("coins");
         totallives = PlayerPrefs.GetInt("lives");
         proggress = PlayerPrefs.GetInt("proggress");
-        coinText.text = levelScore.ToString();
+        Score.text = "Score: " + levelScore.ToString();
         lifeText.text = totallives.ToString(); 
     }
 
     private void Update() {
-        coinText.text = totalcoins.ToString();
-        lifeText.text = totallives.ToString(); 
+        Score.text = "Score: " + levelScore.ToString();
+        lifeText.text = totallives.ToString();
+        PlayerPrefs.SetInt("lifes", totallives);
 
+        if(paused){
+            MusicSource.volume = .05f;
+            
+        }else{
+            MusicSource.volume = .5f;
+        }
         HandleGameTime();
         pausemenuUi.SetActive(paused);
         if(!paused){
@@ -70,22 +79,19 @@ public class GameManager : MonoBehaviour{
         if(GameTimer < 0){
             source.PlayOneShot(sfx[1]);
             RemoveLife();
-            PlayerPrefs.SetInt("lifes",totallives);
+            
             GameoverText.text = "ran out of time!";
             deathScreen.SetActive(true);
             paused = true;
         }
-        GameTimerText.text = Mathf.Round(GameTimer).ToString();
-        timerImage.fillAmount = GameTimer / 120;
+        GameTimerText.text = Mathf.Floor(GameTimer).ToString();
     }
 
     public void AddLife(){
         totallives++;
-        PlayerPrefs.SetInt("lifes", totallives);
     }
     public void RemoveLife(){
         totallives--;
-        PlayerPrefs.SetInt("lifes", totallives);
     }
     public void AddCoin(){
         totalcoins++;
@@ -114,6 +120,8 @@ public class GameManager : MonoBehaviour{
                 invisTimer = resetinvistimer;
             }
     }
+
+    
 
     public IEnumerator PlayerDeath(){
         source.PlayOneShot(sfx[1]);

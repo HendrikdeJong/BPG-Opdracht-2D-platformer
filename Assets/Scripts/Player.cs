@@ -24,16 +24,17 @@ public class Player : MonoBehaviour{
         startpos = transform.position;
         GameManager.manager.paused = false;
     }
+
     void Update() {
-    if (!GameManager.manager.paused) {
-        HandleMovement();
-        HandleJump();
-    }
-        TogglePauseState();
-        HandleActions();
-        // Always update animations and sprite direction
-        UpdateAnimationsAndSpriteDirection();
-    }
+        if (!GameManager.manager.paused) {
+            HandleMovement();
+            HandleJump();
+        }
+            TogglePauseState();
+            HandleActions();
+            // Always update animations and sprite direction
+            UpdateAnimationsAndSpriteDirection();
+        }
 
     void FixedUpdate() {
         if (!GameManager.manager.paused) {
@@ -81,6 +82,15 @@ public class Player : MonoBehaviour{
             // When unpaused, revert the Rigidbody to non-kinematic
             rb.isKinematic = false;
         }
+    }
+
+    public IEnumerator bluePotion(){
+        spriteRenderer.color = new Color(r: 0.3165378f, g:0.3165378f, b:1, a:1);
+        jumpForce = 15;
+        yield return new WaitForSeconds(3);
+        spriteRenderer.color = new Color(r: 1, g:1, b:1, a:1);
+        jumpForce = 10;
+        // SceneLoader.Loader.LoadScene(0);
     }
 
     //collision & items
@@ -134,7 +144,7 @@ public class Player : MonoBehaviour{
 
                         case "JumpPad":
                             source.PlayOneShot(sfx[6]);
-                            rb.velocity = new Vector2(rb.velocity.x, jumpForce * 2);
+                            rb.velocity = new Vector2(rb.velocity.x, jumpForce * 1.5f);
                             break;
 
                         case "Key":
@@ -142,11 +152,19 @@ public class Player : MonoBehaviour{
                             source.PlayOneShot(sfx[2]);
                             tilemap.SetTile(cellPosition, null);
                             break;
+
                         case "LifeStation":
                             source.PlayOneShot(sfx[1]);
                             GameManager.manager.AddLife();
                             tilemap.SetTile(cellPosition, null);
                             break;
+
+                        case "Potion":
+                            source.PlayOneShot(sfx[2]);
+                            StartCoroutine(bluePotion());
+                            tilemap.SetTile(cellPosition, null);
+                            break;
+
                     }
                 }
             break;
