@@ -86,10 +86,10 @@ public class Player : MonoBehaviour{
 
     public IEnumerator bluePotion(){
         spriteRenderer.color = new Color(r: 0.3165378f, g:0.3165378f, b:1, a:1);
-        jumpForce = 15;
-        yield return new WaitForSeconds(3);
+        jumpForce = 13;
+        yield return new WaitForSeconds(4);
         spriteRenderer.color = new Color(r: 1, g:1, b:1, a:1);
-        jumpForce = 10;
+        jumpForce = 9;
         // SceneLoader.Loader.LoadScene(0);
     }
 
@@ -99,7 +99,7 @@ public class Player : MonoBehaviour{
             case "TopCollider":
                 other.transform.parent.GetComponent<Enemy>().Die();
                 source.PlayOneShot(sfx[4]);
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce / 2);
                 GameManager.manager.levelScore += 25;
                 break;
 
@@ -118,7 +118,11 @@ public class Player : MonoBehaviour{
             case "Door":
                 if (HasKey) {
                     SceneLoader.Loader.LoadNextScene();
+                    GameManager.manager.saveprefs();
                 }
+                break;
+            case "CamChange":
+                GameManager.manager.changeFOV();
                 break;
             case "Items":
                 Vector3Int cellPosition = tilemap.WorldToCell(transform.position);
@@ -137,6 +141,7 @@ public class Player : MonoBehaviour{
                         case "Heart":
                             if (GameManager.manager.health < 3) {
                                 GameManager.manager.health++;
+                                GameManager.manager.UpdateHealthUI();
                                 source.PlayOneShot(sfx[1]);
                                 tilemap.SetTile(cellPosition, null);
                             }

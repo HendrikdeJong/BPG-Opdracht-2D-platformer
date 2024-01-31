@@ -13,7 +13,7 @@ public class SceneLoader : MonoBehaviour {
 
     public void LoadScene(int scene) {
         if(PlayerPrefs.GetInt("lives") <= 0){
-            ResetProggress();
+            ResetProgress();
         }else{
             // PlayerPrefs.SetInt("lifes", GameManager.manager.totallives);
             // GameManager.manager.totallives = PlayerPrefs.GetInt("lives");
@@ -21,13 +21,19 @@ public class SceneLoader : MonoBehaviour {
         }
     }
 
-    public void ResetProggress() {
+    public void ResetProgress() {
+        PlayerPrefs.DeleteAll();
         PlayerPrefs.SetInt("lives", 3);
-        PlayerPrefs.SetInt("coins", 0);
-        PlayerPrefs.SetInt("proggres",0);
-        PlayerPrefs.SetInt("score", 0);
         SceneManager.LoadScene(0);
     }
+
+    public void SaveScoreAndReset(){
+        MainMenuHandler.handler.SaveScore(PlayerPrefs.GetInt("score"));
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.SetInt("lives", 3);
+        SceneManager.LoadScene(0);
+    }
+
     public void ReloadScene(){
         if(PlayerPrefs.GetInt("lives") <= 0){
             LoadScene(0);
@@ -35,12 +41,12 @@ public class SceneLoader : MonoBehaviour {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
+
     public void goToMainMenu(){
         SceneManager.LoadScene(0);
     }
+
     public void LoadNextScene() {
-        PlayerPrefs.SetInt("coins", GameManager.manager.totalcoins);
-        PlayerPrefs.SetInt("score", GameManager.manager.totalscore);
         if(SceneManager.sceneCount >= SceneManager.GetActiveScene().buildIndex){
             PlayerPrefs.SetInt("proggress", SceneManager.GetActiveScene().buildIndex + 1);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);

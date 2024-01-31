@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class GameManager : MonoBehaviour{
     public int totalcoins;
@@ -11,34 +12,32 @@ public class GameManager : MonoBehaviour{
     public int totalscore;
     public int levelScore;
     public bool paused;
-    public GameObject pausemenuUi;
-    public GameObject deathScreen;
-    public AudioSource MusicSource;
-    
-
     public int health = 3;
-
-    public AudioClip[] sfx;
-    AudioSource source => GetComponent<AudioSource>();
-
+    public float GameTimer = 120;
 
     private float resetinvistimer = 1.5f;
     private float invisTimer;
 
+    public GameObject pausemenuUi;
+    public GameObject deathScreen;
+    public AudioSource MusicSource;
+    public CinemachineVirtualCamera cinemachineCamera;
 
-    public TextMeshProUGUI GameTimerText;
-    public TextMeshProUGUI GameoverText;
-    public TextMeshProUGUI Score;
-    public float GameTimer = 120;
+    AudioSource source => GetComponent<AudioSource>();
+
     
-
+    public AudioClip[] sfx;
     public Image[] heartImages;
+
     public Sprite fullHeartSprite;
     public Sprite emptyHeartSprite;
 
-
     public TextMeshProUGUI coinText;
     public TextMeshProUGUI lifeText;
+    public TextMeshProUGUI GameTimerText;
+    public TextMeshProUGUI GameoverText;
+    public TextMeshProUGUI Score;
+
     
 
     public static GameManager manager;
@@ -56,7 +55,7 @@ public class GameManager : MonoBehaviour{
     private void Update() {
         Score.text = "Score: " + levelScore.ToString();
         lifeText.text = totallives.ToString();
-        PlayerPrefs.SetInt("lifes", totallives);
+        PlayerPrefs.SetInt("lives", totallives);
 
         if(paused){
             MusicSource.volume = .05f;
@@ -70,6 +69,11 @@ public class GameManager : MonoBehaviour{
             GameTimer -= Time.deltaTime;
             invisTimer -= Time.deltaTime;
         }
+    }
+
+    public void saveprefs(){
+        PlayerPrefs.SetInt("score",totalscore + levelScore);
+        PlayerPrefs.SetInt("coins",totalcoins);
     }
 
     private void HandleGameTime(){
@@ -97,7 +101,7 @@ public class GameManager : MonoBehaviour{
         totalcoins++;
     }
 
-    private void UpdateHealthUI(){
+    public void UpdateHealthUI(){
         for (int i = 0; i < heartImages.Length; i++) {
             if (i < health){
                 // Display full heart for remaining health
@@ -120,7 +124,9 @@ public class GameManager : MonoBehaviour{
                 invisTimer = resetinvistimer;
             }
     }
-
+    public void changeFOV(){
+        cinemachineCamera.m_Lens.OrthographicSize = 7;
+    }
     
 
     public IEnumerator PlayerDeath(){
